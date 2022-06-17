@@ -56,7 +56,8 @@ public class Jogo implements Serializable, Comparable<Jogo> {
         } else {
             throw new IllegalArgumentException("Desconto inválido");
         }
-    }
+    } 
+
 
     @Override
     public int compareTo(Jogo o) {

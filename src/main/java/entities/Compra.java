@@ -74,6 +74,10 @@ public class Compra implements Serializable, Comparable<Compra> {
             sb.append(jogo.toString() + "\n");
         }
         return sb.toString();
+    } 
+
+    public List<Jogo> getJogos(){ 
+        return this.jogos;
     }
 
     @Override
