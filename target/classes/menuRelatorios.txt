@@ -1,0 +1,6 @@
+Maior pedido de hoje
+Total em vendas
+Cliente com maior gasto
+Relatório de todos os pedidos (em arquivo)
+Relatório resumido de clientes
+Testório

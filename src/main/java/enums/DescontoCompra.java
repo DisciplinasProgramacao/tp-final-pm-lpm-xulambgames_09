@@ -16,7 +16,7 @@ public enum DescontoCompra {
         return pctDesconto;
     }
 
-    public double descontoParaAplicar(Compra compra) {
-        return 0.0;
+    public static DescontoCompra descontoParaAplicar(Compra compra) {
+        return DESC_DEZ;
     }
 }

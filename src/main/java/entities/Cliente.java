@@ -3,6 +3,7 @@ package entities;
 import interfaces.ITipoCliente;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Cliente implements Comparable<Cliente>, Serializable {
@@ -26,14 +27,44 @@ public class Cliente implements Comparable<Cliente>, Serializable {
         this.senha = senha;
         this.email = email;
         this.tipoCliente = tipoCliente;
+        this.compras = new LinkedList<>();
+    }
+
+    public Cliente(String nome, String senha, String email) {
+        this.id = ++ultimoCodigo;
+        this.nome = nome;
+        this.senha = senha;
+        this.email = email;
+        this.tipoCliente = null;
+        this.compras = new LinkedList<>();
     }
 
     public int getId() {
         return id;
     }
 
+    public String getNome() {
+        return nome;
+    }
+
+    public void addCompra(Compra compra){
+        this.compras.add(compra);
+    }
+
+    public List<Compra> getCompras(){
+        return this.compras;
+    }
+
     @Override
     public int compareTo(Cliente o) {
         return this.nome.compareTo(o.nome);
+    }
+
+    public Double totalEmCompras() {
+        return 0.0;
+    }
+
+    public String toString() {
+        return "Cliente: " + this.nome + " - " + this.email;
     }
 }
