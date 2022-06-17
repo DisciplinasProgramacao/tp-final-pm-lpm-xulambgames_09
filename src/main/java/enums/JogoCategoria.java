@@ -23,7 +23,7 @@ public enum JogoCategoria {
     }
 
     public boolean descontoValido(double pctDesconto) {
-        return pctDesconto < this.pctDescontoMax && pctDesconto > this.pctDescontoMin || this.pctDescontoMax == this.pctDescontoMin;
+        return pctDesconto <= this.pctDescontoMax && pctDesconto >= this.pctDescontoMin || this.pctDescontoMax == this.pctDescontoMin;
     }
 
     public double getPctDescontoMax() {
