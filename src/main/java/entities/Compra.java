@@ -60,14 +60,17 @@ public class Compra implements Serializable, Comparable<Compra> {
     }
 
     public double getValorPago() {
-        return 0;
+        double valorTotal = valorTotal();
+        double valorComDescontoCompra = valorTotal - (valorTotal * this.descontoCompra.getPctDesconto());
+
+        return valorComDescontoCompra - (valorComDescontoCompra * this.cliente.getTipoCliente().porcentagemDesconto());
     }
 
     public String relatorio() {
         StringBuilder sb = new StringBuilder();
         sb.append("Compra do cliente " + this.cliente.getNome() + " no dia " + this.dataCompra.toString() + "\n");
         sb.append("Valor total: " + this.valorTotal() + "\n");
-        sb.append("Desconto: " + Optional.ofNullable(this.descontoCompra).map(DescontoCompra::getPctDesconto).orElse(null) + "%\n");
+        sb.append("Desconto: " + Optional.ofNullable(this.descontoCompra).map(DescontoCompra::getPctDesconto).orElse(0.0) * 100 + "%\n");
         sb.append("Valor a pagar: " + this.getValorPago() + "\n");
         sb.append("Itens:\n");
         for (Jogo jogo : this.jogos) {

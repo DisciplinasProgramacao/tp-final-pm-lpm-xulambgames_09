@@ -55,6 +55,10 @@ public class Cliente implements Comparable<Cliente>, Serializable {
         return this.compras;
     }
 
+    public ITipoCliente getTipoCliente() {
+        return tipoCliente;
+    }
+
     @Override
     public int compareTo(Cliente o) {
         return this.nome.compareTo(o.nome);

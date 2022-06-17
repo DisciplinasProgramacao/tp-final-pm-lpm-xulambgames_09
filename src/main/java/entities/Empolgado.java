@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 public class Empolgado implements ITipoCliente, Serializable {
     private static final long serialVersionUID = 1L;
-    static final double DESCONTO_EMPOLGADO = 0.9;
+    static final double DESCONTO_EMPOLGADO = 0.1;
     static final int VALOR_MENSALIDADE_EMPOLGADO = 10;
 
     @Override
