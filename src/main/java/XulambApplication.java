@@ -10,6 +10,7 @@ import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class XulambApplication {
 
@@ -133,6 +134,12 @@ public class XulambApplication {
                         alterarTipoCliente();
                     }
                     break;
+                case 24:
+                    System.out.println("Todos os clientes: \n");
+                    for (Cliente c : conjuntoClientes) {
+                        System.out.println(c);
+                    }
+                    break;
                 case 31:
                     conjuntoJogos.add(criarNovoJogo());
                     break;
@@ -161,47 +168,52 @@ public class XulambApplication {
                 case 41:
                     limparTela();
                     cabecalho();
-                    Optional<Compra> maiorDeHoje = conjuntoCompras.stream()
-                            .filter(ped -> ped.getData().equals(LocalDate.now()))
-                            .max(Compra::compareTo);
-                    maiorDeHoje.ifPresentOrElse(
-                            (p) -> System.out.println("Maior pedido de hoje:\n" + p),
-                            () -> System.out.println("Sem pedidos hoje até agora."));
+                    System.out.println("Escolha o mês de referência: \n");
+                    System.out.println("1 - Janeiro\n2 - Fevereiro\n3 - Março\n4 - Abril\n5 - Maio\n6 - Junho\n7 - Julho\n8 - Agosto\n9 - Setembro\n10 - Outubro\n11 - Novembro\n12 - Dezembro");
+                    int mes = Integer.parseInt(teclado.nextLine());
+                    System.out.println("Escolha o ano de referência: ");
+                    int ano = Integer.parseInt(teclado.nextLine());;
+                    double valor = conjuntoCompras.stream()
+                            .filter(c -> c.getData().getMonthValue() == mes && c.getData().getYear() == ano)
+                            .mapToDouble(Compra::getValorPago)
+                            .sum();
+                    System.out.println("O valor total vendido no mês de " + mes + "/" + ano + " foi: " + Compra.formatoDinheiroBrasileiro(valor));
 
                     break;
 
                 case 42:
-
-                    System.out.print("Total arrecadado pelo restauraurante: R$ ");
-                    System.out.println(String.format("%.2f",
-                            conjuntoCompras.stream()
-                                    .mapToDouble(Compra::valorTotal)
-                                    .sum()));
+                    System.out.println("Valor Médio das vendas: ");
+                    conjuntoCompras.stream()
+                            .mapToDouble(Compra::getValorPago)
+                            .average()
+                            .ifPresentOrElse(
+                                    d -> System.out.println(Compra.formatoDinheiroBrasileiro(d)),
+                                    () -> System.out.println("Não há vendas.")
+                            );
                     break;
                 case 43:
                     limparTela();
                     cabecalho();
-                    System.out.println("Cliente com maior valor total em pedidos.");
-                    try {
-                        Cliente maiorTotal = conjuntoClientes.stream()
-                                .max((c1, c2) -> c1.totalEmCompras() > c2.totalEmCompras() ? 1 : -1)
-                                .orElseThrow();
-
-                        System.out
-                                .println(maiorTotal + " com R$ " + String.format("%.2f", maiorTotal.totalEmCompras()));
-                    } catch (NoSuchElementException e) {
-                        System.out.println("Não há clientes cadastrados");
-                    }
+                    System.out.println("Jogo mais vendido: \n");
+                    conjuntoCompras.stream()
+                            .flatMap(c -> c.getJogos().stream())
+                            .collect(Collectors.groupingBy(Jogo::getNome, Collectors.counting()))
+                            .entrySet()
+                            .stream()
+                            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                            .limit(1)
+                            .forEach(e -> System.out.println(e.getKey() + " - " + e.getValue() + " vendas"));
                     break;
                 case 44:
-                    System.out.print("Digite o nome do arquivo para saída:");
-                    String arquivo = teclado.nextLine();
-//                        relatorioVendas(arquivo, todosOsPedidos);
-
-                    break;
-
-                case 45:
-                    System.out.println(resumoClientes());
+                    System.out.println("Jogo menos vendido: \n");
+                    conjuntoCompras.stream()
+                            .flatMap(c -> c.getJogos().stream())
+                            .collect(Collectors.groupingBy(Jogo::getNome, Collectors.counting()))
+                            .entrySet()
+                            .stream()
+                            .sorted(Map.Entry.<String, Long>comparingByValue())
+                            .limit(10)
+                            .forEach(e -> System.out.println(e.getKey() + " - " + e.getValue() + " vendas"));
                     break;
             }
             pausa(teclado);
@@ -359,8 +371,6 @@ public class XulambApplication {
     private static Cliente cadastrarCliente() {
         Cliente novoCliente;
 
-        System.out.println("XULAMBS GAMES");
-        System.out.println("==========================");
         System.out.println("NOVO CLIENTE");
         System.out.print("NOME: ");
 
