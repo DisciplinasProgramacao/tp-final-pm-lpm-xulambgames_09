@@ -1,7 +1,9 @@
+package aplicacao;
+
 import dao.ClienteDAO;
 import dao.JogoDAO;
 import entities.*;
-import enums.JogoCategoria;
+import enums.*;
 import factories.FabricaJogos;
 
 import java.io.*;
@@ -30,9 +32,9 @@ public class XulambApplication {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         int opcao = 0;
         teclado = new Scanner(System.in, StandardCharsets.UTF_8);
-        conjuntoClientes = carregarDados(arqClientes, Cliente.class);
-        conjuntoCompras = carregarDados(arqCompras, Compra.class);
-        conjuntoJogos = carregarDados(arqJogos, Jogo.class);
+        conjuntoClientes = carregarDados(arqClientes);
+        conjuntoCompras = carregarDados(arqCompras);
+        conjuntoJogos = carregarDados(arqJogos);
         Cliente.setProximoCodigo(conjuntoClientes.stream()
                 .mapToInt(Cliente::getId)
                 .max()
@@ -454,7 +456,7 @@ public class XulambApplication {
      * exceções
      *
      */
-    public static<T> TreeSet<T> carregarDados(String nomeArq, Class<T> classe) throws FileNotFoundException, ClassNotFoundException {
+    public static<T> TreeSet<T> carregarDados(String nomeArq) throws FileNotFoundException, ClassNotFoundException {
         FileInputStream dados;
         TreeSet<T> todos = new TreeSet<>();
 
@@ -462,7 +464,7 @@ public class XulambApplication {
             dados = new FileInputStream(nomeArq);
             ObjectInputStream obj = new ObjectInputStream(dados);
             while (dados.available() != 0) {
-                T novo = classe.cast(obj.readObject());
+                T novo = (T) obj.readObject();
                 todos.add(novo);
             }
             obj.close();
