@@ -1,3 +1,4 @@
-Último pedido do cliente
+Última compra do cliente
 Resumo do cliente
-Maior pedido do cliente
+Mudar categoria do cliente
+Maior compra do cliente

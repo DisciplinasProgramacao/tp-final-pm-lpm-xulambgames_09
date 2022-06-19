@@ -61,7 +61,7 @@ public enum DescontoCompra {
                     }
                 }
             } 
-            return DESC_DEZ;
+            return null;
        }
 
     }

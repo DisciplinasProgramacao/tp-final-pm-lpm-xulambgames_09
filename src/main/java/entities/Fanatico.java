@@ -18,4 +18,9 @@ public class Fanatico implements ITipoCliente, Serializable {
     public int valorMensalidade() {
         return VALOR_MENSALIDADE_FANATICO;
     }
+
+    @Override
+    public String toString() {
+        return "Fanatico";
+    }
 }

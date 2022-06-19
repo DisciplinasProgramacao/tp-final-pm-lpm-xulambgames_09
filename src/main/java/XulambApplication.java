@@ -1,8 +1,6 @@
 import dao.ClienteDAO;
 import dao.JogoDAO;
-import entities.Cliente;
-import entities.Compra;
-import entities.Jogo;
+import entities.*;
 import enums.JogoCategoria;
 import factories.FabricaJogos;
 
@@ -31,16 +29,18 @@ public class XulambApplication {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         int opcao = 0;
         teclado = new Scanner(System.in, StandardCharsets.UTF_8);
-        conjuntoClientes = (TreeSet<Cliente>) carregarDados(arqClientes, Cliente.class);
-        conjuntoCompras = (TreeSet<Compra>) carregarDados(arqCompras, Compra.class);
-        conjuntoJogos = (TreeSet<Jogo>) carregarDados(arqJogos, Jogo.class);
+        conjuntoClientes = carregarDados(arqClientes, Cliente.class);
+        conjuntoCompras = carregarDados(arqCompras, Compra.class);
+        conjuntoJogos = carregarDados(arqJogos, Jogo.class);
         Cliente.setProximoCodigo(conjuntoClientes.stream()
                 .mapToInt(Cliente::getId)
                 .max()
                 .orElse(1));
 
         do {
+            cabecalho();
             opcao = menu(opcao);
+            limparTela();
             switch (opcao) {
                 case 11:
                     if (clienteAtual == null) {
@@ -65,8 +65,8 @@ public class XulambApplication {
 
                 case 13:
                     try {
-
-                        System.out.println("Cliente: " + clienteAtual.getNome());
+                        limparTela();
+                        cabecalho();
                         System.out.println(compraAtual.relatorio());
                     } catch (NullPointerException nex) {
                         System.out.println("Não há cliente ativo ou pedido em aberto.");
@@ -86,7 +86,7 @@ public class XulambApplication {
                             System.out.println("Não há cliente ativo");
                         }
                     } else {
-                        System.out.println("Não há pedido em aberto.");
+                        System.out.println("Não há uma compra aberta.");
                     }
                     break;
 
@@ -94,8 +94,8 @@ public class XulambApplication {
 
                     try {
                         clienteAtual = localizarCliente();
-                        System.out.println(clienteAtual);
-                        System.out.println("ÚLTIMO PEDIDO: " + clienteAtual.getCompras().get(clienteAtual.getCompras().size() - 1));
+                        System.out.println("ÚLTIMO PEDIDO: ");
+                        System.out.println(clienteAtual.getCompras().get(clienteAtual.getCompras().size() - 1).relatorio());
                     } catch (NullPointerException ne) {
                         System.out.println("Cliente não encontrado.");
                     } catch (NoSuchElementException nse) {
@@ -104,26 +104,34 @@ public class XulambApplication {
                     break;
 
                 case 22:
-
+                    limparTela();
+                    cabecalho();
                     try {
                         clienteAtual = localizarCliente();
 
-                        System.out.println("CLIENTE: " + clienteAtual);
-                        System.out.println("TOTAL DE PEDIDOS: " + clienteAtual.getCompras().size());
+                        System.out.println(clienteAtual);
+                        System.out.println("TOTAL DE COMPRAS: " + clienteAtual.getCompras().size());
                         System.out.println("GASTO TOTAL COM PEDIDOS: " +
-                                String.format("%.2f", clienteAtual.totalEmCompras()));
+                                Compra.formatoDinheiroBrasileiro(clienteAtual.totalEmCompras()));
                         System.out.println("MÉDIA POR PEDIDO: " +
-                                String.format("%.2f,", clienteAtual.getCompras().stream()
+                                Compra.formatoDinheiroBrasileiro(clienteAtual.getCompras().stream()
                                         .mapToDouble(Compra::getValorPago)
                                         .average()
                                         .getAsDouble()));
-                        System.out.println("ÚLTIMO PEDIDO: " + clienteAtual.getCompras().get(clienteAtual.getCompras().size() - 1));
+                        System.out.println("ÚLTIMO PEDIDO: ");
+                        System.out.println(clienteAtual.getCompras().get(clienteAtual.getCompras().size() - 1).relatorio());
                     } catch (NullPointerException ne) {
                         System.out.println("Cliente não encontrado.");
                     } catch (NoSuchElementException nse) {
                         System.out.println("Cliente não tem pedidos.");
                     }
 
+                    break;
+                case 23:
+                    clienteAtual = localizarCliente();
+                    if (clienteAtual != null) {
+                        alterarTipoCliente();
+                    }
                     break;
                 case 31:
                     conjuntoJogos.add(criarNovoJogo());
@@ -151,7 +159,8 @@ public class XulambApplication {
                     JogoDAO.listarJogos(conjuntoJogos);
                     break;
                 case 41:
-
+                    limparTela();
+                    cabecalho();
                     Optional<Compra> maiorDeHoje = conjuntoCompras.stream()
                             .filter(ped -> ped.getData().equals(LocalDate.now()))
                             .max(Compra::compareTo);
@@ -170,7 +179,8 @@ public class XulambApplication {
                                     .sum()));
                     break;
                 case 43:
-
+                    limparTela();
+                    cabecalho();
                     System.out.println("Cliente com maior valor total em pedidos.");
                     try {
                         Cliente maiorTotal = conjuntoClientes.stream()
@@ -194,6 +204,7 @@ public class XulambApplication {
                     System.out.println(resumoClientes());
                     break;
             }
+            pausa(teclado);
         } while (opcao != 0);
 
         gravarDados(conjuntoClientes, arqClientes);
@@ -201,8 +212,38 @@ public class XulambApplication {
         gravarDados(conjuntoCompras, arqCompras);
     }
 
+    private static void alterarTipoCliente() {
+        int iCategoria;
+        System.out.println(clienteAtual);
+        System.out.println("Escolha a nova categoria desejada:");
+        System.out.println("1 - Empolgado");
+        System.out.println("2 - Fanatico");
+        System.out.println("3 - Cadastrado");
+        System.out.println("0 - Sair");
+        try {
+            iCategoria = Integer.parseInt(teclado.nextLine());
+        } catch (NumberFormatException e) {
+            iCategoria = -1;
+        }
+        switch (iCategoria) {
+            case 1:
+                clienteAtual.setTipoCliente(new Empolgado());
+                break;
+            case 2:
+                clienteAtual.setTipoCliente(new Fanatico());
+                break;
+            case 3:
+                clienteAtual.setTipoCliente(null);
+                break;
+            case 0:
+                System.out.println("Saindo...");
+                break;
+            default:
+                System.out.println("Opção inválida.");
+        }
+    }
+
     private static void alterarCategoria(Jogo jogo) {
-        System.out.println("Digite a nova categoria do jogo:");
         int iCategoria = escolherCategoria();
         jogo.setCategoria(FabricaJogos.getJogoCategoria(iCategoria));
     }
@@ -302,8 +343,6 @@ public class XulambApplication {
 
     private static Cliente localizarCliente() {
         String nome;
-        System.out.println("XULAMBS BURGER & PIZZA");
-        System.out.println("==========================");
         System.out.println("LOCALIZAR CLIENTE");
         System.out.print("NOME: ");
 
@@ -342,7 +381,7 @@ public class XulambApplication {
         System.out.println("3 - Jogos");
         System.out.println("4 - Relatórios");
         System.out.println("0 - Finalizar");
-        System.out.print("Digite sua opção: ");
+        System.out.println("Digite sua opção: ");
         if ((subnivel % 10) == 0) {
             opcao = teclado.nextInt();
             teclado.nextLine();
@@ -405,7 +444,7 @@ public class XulambApplication {
      * exceções
      *
      */
-    public static<T> Set<T> carregarDados(String nomeArq, Class<T> classe) throws FileNotFoundException, ClassNotFoundException {
+    public static<T> TreeSet<T> carregarDados(String nomeArq, Class<T> classe) throws FileNotFoundException, ClassNotFoundException {
         FileInputStream dados;
         TreeSet<T> todos = new TreeSet<>();
 
@@ -413,7 +452,7 @@ public class XulambApplication {
             dados = new FileInputStream(nomeArq);
             ObjectInputStream obj = new ObjectInputStream(dados);
             while (dados.available() != 0) {
-                T novo = (T) obj.readObject();
+                T novo = classe.cast(obj.readObject());
                 todos.add(novo);
             }
             obj.close();
@@ -428,5 +467,29 @@ public class XulambApplication {
         }
 
         return todos;
+    }
+
+    /**
+     * "Limpa" a tela (códigos de terminal VT-100)
+     */
+    public static void limparTela() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
+    public static void cabecalho() {
+        limparTela();
+        System.out.println("XULAMB GAMES");
+        System.out.println("==========================");
+    }
+
+    /**
+     * Pausa para leitura de mensagens em console
+     *
+     * @param teclado Scanner de leitura
+     */
+    static void pausa(Scanner teclado) {
+        System.out.println("Enter para continuar.");
+        teclado.nextLine();
     }
 }

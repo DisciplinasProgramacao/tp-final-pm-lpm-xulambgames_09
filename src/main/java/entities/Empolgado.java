@@ -18,4 +18,9 @@ public class Empolgado implements ITipoCliente, Serializable {
     public int valorMensalidade() {
         return VALOR_MENSALIDADE_EMPOLGADO;
     }
+
+    @Override
+    public String toString() {
+        return "Empolgado";
+    }
 }

@@ -1,6 +1,7 @@
 package entities;
 
 import enums.DescontoCompra;
+import interfaces.ITipoCliente;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -29,6 +30,10 @@ public class Compra implements Serializable, Comparable<Compra> {
         atualizarDescontoCompra();
     }
 
+    public Optional<DescontoCompra> getDescontoCompra() {
+        return Optional.ofNullable(descontoCompra);
+    }
+
     public void addItem(Jogo itemAtual) {
         this.jogos.add(itemAtual);
         atualizarDescontoCompra();
@@ -53,6 +58,16 @@ public class Compra implements Serializable, Comparable<Compra> {
         double valor=0d;
 
         for (Jogo jogo : this.jogos) {
+            valor += jogo.getPrecoBase();
+        }
+
+        return valor;
+    }
+
+    public double valorAPagarItens() {
+        double valor=0d;
+
+        for (Jogo jogo : this.jogos) {
             valor += jogo.precoFinal();
         }
 
@@ -60,18 +75,22 @@ public class Compra implements Serializable, Comparable<Compra> {
     }
 
     public double getValorPago() {
-        double valorTotal = valorTotal();
-        double valorComDescontoCompra = valorTotal - (valorTotal * this.descontoCompra.getPctDesconto());
+        double valorTotal = valorAPagarItens();
+        double valorComDescontoCompra = valorTotal - (valorTotal * this.getDescontoCompra().map(DescontoCompra::getPctDesconto).orElse(0d));
 
-        return valorComDescontoCompra - (valorComDescontoCompra * this.cliente.getTipoCliente().porcentagemDesconto());
+
+        return valorComDescontoCompra - (valorComDescontoCompra * this.cliente.getTipoCliente().map(ITipoCliente::porcentagemDesconto).orElse(0d));
     }
 
     public String relatorio() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Compra do cliente " + this.cliente.getNome() + " no dia " + this.dataCompra.toString() + "\n");
-        sb.append("Valor total: " + this.valorTotal() + "\n");
-        sb.append("Desconto: " + Optional.ofNullable(this.descontoCompra).map(DescontoCompra::getPctDesconto).orElse(0.0) * 100 + "%\n");
-        sb.append("Valor a pagar: " + this.getValorPago() + "\n");
+        sb.append("Compra do cliente ").append(this.cliente.getNome()).append(" no dia ").append(this.dataCompra.toString()).append("\n");
+        sb.append("Valor total: ").append(formatoDinheiroBrasileiro(this.valorTotal())).append("\n");
+        this.getDescontoCompra().ifPresentOrElse(
+                d -> sb.append("Desconto da compra: ").append(d.getPctDesconto()).append("%\n")
+                , () -> sb.append("Sem desconto de compra\n")
+        );
+        sb.append("Valor a pagar: " + formatoDinheiroBrasileiro(this.getValorPago()) + "\n");
         sb.append("Itens:\n");
         for (Jogo jogo : this.jogos) {
             sb.append(jogo.toString() + "\n");
@@ -85,6 +104,10 @@ public class Compra implements Serializable, Comparable<Compra> {
 
     @Override
     public String toString() {
-        return "Compra: " + this.cliente.getNome() + " - " + this.dataCompra + " - " + this.valorTotal();
+        return "Nome do cliente: " + this.cliente.getNome() + " - " + this.dataCompra + " - " + this.valorTotal();
+    }
+
+    public static String formatoDinheiroBrasileiro(double valor) {
+        return String.format("R$ %.2f", valor);
     }
 }

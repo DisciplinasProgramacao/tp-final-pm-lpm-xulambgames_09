@@ -5,6 +5,7 @@ import interfaces.ITipoCliente;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class Cliente implements Comparable<Cliente>, Serializable {
     private static final long serialVersionUID = 1L;
@@ -51,12 +52,16 @@ public class Cliente implements Comparable<Cliente>, Serializable {
         this.compras.add(compra);
     }
 
+    public void setTipoCliente(ITipoCliente tipoCliente) {
+        this.tipoCliente = tipoCliente;
+    }
+
     public List<Compra> getCompras(){
         return this.compras;
     }
 
-    public ITipoCliente getTipoCliente() {
-        return tipoCliente;
+    public Optional<ITipoCliente> getTipoCliente() {
+        return Optional.ofNullable(tipoCliente);
     }
 
     @Override
@@ -65,10 +70,10 @@ public class Cliente implements Comparable<Cliente>, Serializable {
     }
 
     public Double totalEmCompras() {
-        return 0.0;
+        return this.compras.stream().mapToDouble(Compra::getValorPago).sum();
     }
 
     public String toString() {
-        return "Cliente: " + this.nome + " - " + this.email;
+        return "Nome: " + this.nome + " - Tipo: " + (this.tipoCliente != null ? this.tipoCliente.toString() : "Cadastrado") + " - e-mail: " + this.email;
     }
 }

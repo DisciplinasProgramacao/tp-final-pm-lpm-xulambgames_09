@@ -34,6 +34,10 @@ public class Jogo implements Serializable, Comparable<Jogo> {
         return this.precoBase - (this.precoBase *  desconto);
     }
 
+    public double getPrecoBase() {
+        return precoBase;
+    }
+
     public JogoCategoria getCategoria() {
         return categoria;
     }
