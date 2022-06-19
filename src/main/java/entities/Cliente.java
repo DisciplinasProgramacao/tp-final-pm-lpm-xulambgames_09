@@ -7,6 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import enums.JogoCategoria;
+import factories.FabricaJogos;
+
 public class Cliente implements Comparable<Cliente>, Serializable {
     private static final long serialVersionUID = 1L;
     private int id;
@@ -75,5 +78,13 @@ public class Cliente implements Comparable<Cliente>, Serializable {
 
     public String toString() {
         return "Nome: " + this.nome + " - Tipo: " + (this.tipoCliente != null ? this.tipoCliente.toString() : "Cadastrado") + " - e-mail: " + this.email;
+    }
+
+    public void comprasPelaCategoriaJogo(String categoria){ 
+     
+        this.compras.stream()
+        .flatMap(e -> e.getJogos().stream())
+        .filter(i -> i.getCategoria().equals(FabricaJogos.getJogoCategoria(categoria)))
+        .forEach(i -> System.out.println(i));
     }
 }
