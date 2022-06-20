@@ -20,41 +20,38 @@ public class Compra implements Serializable, Comparable<Compra> {
         this.cliente = cliente;
         this.dataCompra = dataCompra;
         this.jogos = new LinkedList<>();
-        this.addItem(jogo);
+        this.incluirJogo(jogo);
         this.descontoCompra = null;
-    }
-
-    public void addItem(Jogo itemAtual, double pctDesconto) {
-        itemAtual.descontoValido(pctDesconto);
-        this.jogos.add(itemAtual);
-        atualizarDescontoCompra();
-    }
-
-    public Optional<DescontoCompra> getDescontoCompra() {
-        return Optional.ofNullable(descontoCompra);
-    }
-
-    public void addItem(Jogo itemAtual) {
-        this.jogos.add(itemAtual);
-        atualizarDescontoCompra();
     }
 
     public LocalDate getData() {
         return this.dataCompra;
     }
 
+    public Optional<DescontoCompra> getDescontoCompra() {
+        return Optional.ofNullable(descontoCompra);
+    }
+
+    public List<Jogo> getJogos(){
+        return this.jogos;
+    }
+
+    public void incluirJogo(Jogo novoJogo, double pctDesconto) {
+        novoJogo.descontoValido(pctDesconto);
+        this.jogos.add(novoJogo);
+        atualizarDescontoCompra();
+    }
+
+    public void incluirJogo(Jogo itemAtual) {
+        this.jogos.add(itemAtual);
+        atualizarDescontoCompra();
+    }
+
     private void atualizarDescontoCompra() {
         this.descontoCompra = DescontoCompra.descontoParaAplicar(this);
     }
 
-    @Override
-    public int compareTo(Compra o) {
-        if(this.valorTotal()> o.valorTotal()) return 1;
-        else if(this.valorTotal() < o.valorTotal()) return -1;
-        return 0;
-    }
-
-    public double valorTotal() {
+    public double valorTotalJogos() {
         double valor=0d;
 
         for (Jogo jogo : this.jogos) {
@@ -64,7 +61,7 @@ public class Compra implements Serializable, Comparable<Compra> {
         return valor;
     }
 
-    public double valorAPagarItens() {
+    public double valorAPagarJogos() {
         double valor=0d;
 
         for (Jogo jogo : this.jogos) {
@@ -74,8 +71,8 @@ public class Compra implements Serializable, Comparable<Compra> {
         return valor;
     }
 
-    public double getValorPago() {
-        double valorTotal = valorAPagarItens();
+    public double valorAPagar() {
+        double valorTotal = valorAPagarJogos();
         double valorComDescontoCompra = valorTotal - (valorTotal * this.getDescontoCompra().map(DescontoCompra::getPctDesconto).orElse(0d));
 
 
@@ -85,29 +82,32 @@ public class Compra implements Serializable, Comparable<Compra> {
     public String relatorio() {
         StringBuilder sb = new StringBuilder();
         sb.append("Compra do cliente ").append(this.cliente.getNome()).append(" no dia ").append(this.dataCompra.toString()).append("\n");
-        sb.append("Valor total: ").append(formatoDinheiroBrasileiro(this.valorTotal())).append("\n");
+        sb.append("Valor total: ").append(formatoDinheiroBrasileiro(this.valorTotalJogos())).append("\n");
         this.getDescontoCompra().ifPresentOrElse(
                 d -> sb.append("Desconto da compra: ").append(d.getPctDesconto()).append("%\n")
                 , () -> sb.append("Sem desconto de compra\n")
         );
-        sb.append("Valor a pagar: " + formatoDinheiroBrasileiro(this.getValorPago()) + "\n");
+        sb.append("Valor a pagar: " + formatoDinheiroBrasileiro(this.valorAPagar()) + "\n");
         sb.append("Itens:\n");
         for (Jogo jogo : this.jogos) {
             sb.append(jogo.toString() + "\n");
         }
         return sb.toString();
-    } 
-
-    public List<Jogo> getJogos(){ 
-        return this.jogos;
-    }
-
-    @Override
-    public String toString() {
-        return "Nome do cliente: " + this.cliente.getNome() + " - " + this.dataCompra + " - " + this.valorTotal();
     }
 
     public static String formatoDinheiroBrasileiro(double valor) {
         return String.format("R$ %.2f", valor);
+    }
+
+    @Override
+    public int compareTo(Compra o) {
+        if(this.valorTotalJogos()> o.valorTotalJogos()) return 1;
+        else if(this.valorTotalJogos() < o.valorTotalJogos()) return -1;
+        return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Nome do cliente: " + this.cliente.getNome() + " - " + this.dataCompra + " - " + this.valorTotalJogos();
     }
 }

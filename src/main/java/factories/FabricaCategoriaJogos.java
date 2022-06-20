@@ -4,9 +4,8 @@ import enums.JogoCategoria;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public class FabricaJogos {
+public class FabricaCategoriaJogos {
     static final List<JogoCategoria> categorias = new ArrayList<>(4);
 
     static {

@@ -55,11 +55,8 @@ public class Jogo implements Serializable, Comparable<Jogo> {
     }
 
     public void setPctDesconto(double pctDesconto) {
-        if (categoria.descontoValido(pctDesconto)) {
-            this.desconto = pctDesconto;
-        } else {
-            throw new IllegalArgumentException("Desconto inválido");
-        }
+        this.descontoValido(pctDesconto);
+        this.desconto = pctDesconto;
     } 
 
 
