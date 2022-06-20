@@ -4,12 +4,14 @@ import dao.ClienteDAO;
 import dao.JogoDAO;
 import entities.*;
 import enums.*;
-import factories.FabricaJogos;
+import factories.FabricaCategoriaJogos;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -81,7 +83,7 @@ public class XulambApplication {
                         try {
 
                             System.out.println("PEDIDO FECHADO.");
-                            clienteAtual.addCompra(compraAtual);
+                            clienteAtual.incluirCompra(compraAtual);
                             conjuntoCompras.add(compraAtual);
                             System.out.println(compraAtual.relatorio());
                             compraAtual = null;
@@ -115,10 +117,10 @@ public class XulambApplication {
                         System.out.println(clienteAtual);
                         System.out.println("TOTAL DE COMPRAS: " + clienteAtual.getCompras().size());
                         System.out.println("GASTO TOTAL COM PEDIDOS: " +
-                                Compra.formatoDinheiroBrasileiro(clienteAtual.totalEmCompras()));
+                                Compra.formatoDinheiroBrasileiro(clienteAtual.totalValorPagoCompras()));
                         System.out.println("MÉDIA POR PEDIDO: " +
                                 Compra.formatoDinheiroBrasileiro(clienteAtual.getCompras().stream()
-                                        .mapToDouble(Compra::getValorPago)
+                                        .mapToDouble(Compra::valorAPagar)
                                         .average()
                                         .getAsDouble()));
                         System.out.println("ÚLTIMO PEDIDO: ");
@@ -139,9 +141,37 @@ public class XulambApplication {
                 case 24:
                     System.out.println("Todos os clientes: \n");
                     for (Cliente c : conjuntoClientes) {
-                        System.out.println(c);
+                          System.out.println(c);
+                    } 
+                    break; 
+                case 25:  
+                try{ 
+                    limparTela();
+                    clienteAtual = localizarCliente(); 
+                    System.out.println("Escreva o tipo de jogo para fazer a pesquisa");
+                    String tipoDeJogo = teclado.nextLine(); 
+                    clienteAtual.comprasPelaCategoriaJogo(tipoDeJogo); 
+                } 
+                catch(IllegalArgumentException e){ 
+                    System.out.println("Tipo de jogo não Existente.");
+                }
+                    break; 
+                case 26:  
+                    try{ 
+                        limparTela();
+                        clienteAtual = localizarCliente(); 
+                        System.out.println("Escreva o dia da Compra");
+                        int dia = Integer.parseInt(teclado.nextLine()); 
+                        System.out.println("Escreva o mês da Compra");
+                        int mes = Integer.parseInt(teclado.nextLine()); 
+                        System.out.println("Escreva o ano da Compra");
+                        int ano = Integer.parseInt(teclado.nextLine());
+                        clienteAtual.comprasPelaData(dia,mes,ano); 
+                    } 
+                    catch(DateTimeException e){ 
+                        System.out.println("Data Inválida");
                     }
-                    break;
+                        break;
                 case 31:
                     conjuntoJogos.add(criarNovoJogo());
                     break;
@@ -177,7 +207,7 @@ public class XulambApplication {
                     int ano = Integer.parseInt(teclado.nextLine());;
                     double valor = conjuntoCompras.stream()
                             .filter(c -> c.getData().getMonthValue() == mes && c.getData().getYear() == ano)
-                            .mapToDouble(Compra::getValorPago)
+                            .mapToDouble(Compra::valorAPagar)
                             .sum();
                     System.out.println("O valor total vendido no mês de " + mes + "/" + ano + " foi: " + Compra.formatoDinheiroBrasileiro(valor));
 
@@ -186,7 +216,7 @@ public class XulambApplication {
                 case 42:
                     System.out.println("Valor Médio das vendas: ");
                     conjuntoCompras.stream()
-                            .mapToDouble(Compra::getValorPago)
+                            .mapToDouble(Compra::valorAPagar)
                             .average()
                             .ifPresentOrElse(
                                     d -> System.out.println(Compra.formatoDinheiroBrasileiro(d)),
@@ -259,7 +289,7 @@ public class XulambApplication {
 
     private static void alterarCategoria(Jogo jogo) {
         int iCategoria = escolherCategoria();
-        jogo.setCategoria(FabricaJogos.getJogoCategoria(iCategoria));
+        jogo.setCategoria(FabricaCategoriaJogos.getJogoCategoria(iCategoria));
     }
 
     private static Jogo localizarJogo() {
@@ -272,7 +302,7 @@ public class XulambApplication {
         int iCategoria;
         System.out.println("Escolha a categoria:");
         int i = 1;
-        for (JogoCategoria categoria : FabricaJogos.getCategorias()) {
+        for (JogoCategoria categoria : FabricaCategoriaJogos.getCategorias()) {
             System.out.println(i + " - " + categoria.name());
             i++;
         }
@@ -287,7 +317,7 @@ public class XulambApplication {
         System.out.println("Digite o preço base:");
         double precoBase = Double.parseDouble(teclado.nextLine());
         int iCategoria = escolherCategoria();
-        novoJovo.setCategoria(FabricaJogos.getJogoCategoria(iCategoria));
+        novoJovo.setCategoria(FabricaCategoriaJogos.getJogoCategoria(iCategoria));
         novoJovo.setNome(nomeJogo);
         novoJovo.setPrecoBase(precoBase);
 
@@ -301,7 +331,7 @@ public class XulambApplication {
 
     private static void adicionarJogoACompra() {
         itemAtual = pegarJogoExistente();
-        compraAtual.addItem(itemAtual);
+        compraAtual.incluirJogo(itemAtual);
         System.out.println(itemAtual.getNome() + " adicionado ao pedido.");
     }
 

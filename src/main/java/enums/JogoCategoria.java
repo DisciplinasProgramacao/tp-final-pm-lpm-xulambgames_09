@@ -14,14 +14,6 @@ public enum JogoCategoria {
         this.pctDescontoMin = pctDescontoMin;
     }
 
-    public double porcentagemDesconto(double pctDescontoValido) {
-        if (descontoValido(pctDescontoValido)) {
-            return pctDescontoValido;
-        } else {
-            throw new IllegalArgumentException("Porcentagem de desconto inválida");
-        }
-    }
-
     public boolean descontoValido(double pctDesconto) {
         return pctDesconto <= this.pctDescontoMax && pctDesconto >= this.pctDescontoMin || this.pctDescontoMax == this.pctDescontoMin;
     }
