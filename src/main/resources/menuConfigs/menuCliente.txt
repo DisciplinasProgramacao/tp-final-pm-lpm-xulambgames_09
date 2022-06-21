@@ -1,0 +1,6 @@
+Ultima compra do cliente
+Resumo do cliente
+Mudar categoria do cliente
+Listar todos os clientes 
+Historico de Compras por Tipo de Jogo 
+Historico de Compras por Data

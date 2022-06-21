@@ -1,0 +1,4 @@
+Valor mensal vendido
+Valor médio das vendas
+Jogo mais vendido
+Jogo menos vendido

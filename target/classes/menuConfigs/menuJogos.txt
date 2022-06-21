@@ -1,0 +1,4 @@
+Novo jogo
+Detalhes do jogo
+Mudar categoria de Jogo
+Listar jogos

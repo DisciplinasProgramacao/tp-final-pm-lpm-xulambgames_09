@@ -1,0 +1,4 @@
+Última compra do cliente
+Resumo do cliente
+Mudar categoria do cliente
+Listar todos os clientes
