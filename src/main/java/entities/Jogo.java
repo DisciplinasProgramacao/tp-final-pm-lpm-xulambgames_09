@@ -24,8 +24,8 @@ public class Jogo implements Serializable, Comparable<Jogo> {
         return nome;
     }
 
-    public void descontoValido(double pctDesconto) {
-        if (categoria.descontoValido(pctDesconto)) {
+    private void descontoValido(double pctDesconto) {
+        if (!categoria.descontoValido(pctDesconto)) {
             throw new IllegalArgumentException("Desconto inválido");
         }
     }
@@ -51,6 +51,7 @@ public class Jogo implements Serializable, Comparable<Jogo> {
     }
 
     public void setCategoria(JogoCategoria categoria) {
+        this.desconto = categoria.getPctDescontoMin();
         this.categoria = categoria;
     }
 
@@ -67,6 +68,6 @@ public class Jogo implements Serializable, Comparable<Jogo> {
 
     @Override
     public String toString() {
-        return "Jogo: " + this.nome + " - " + this.precoBase + " - " + this.categoria;
+        return "Jogo: " + this.nome + " - " + Compra.formatoDinheiroBrasileiro(this.precoBase) + " - Desconto aplicado: " + this.desconto * 100d  + "% - " + this.categoria;
     }
 }

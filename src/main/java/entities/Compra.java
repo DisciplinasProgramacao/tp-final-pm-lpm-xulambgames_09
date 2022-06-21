@@ -35,15 +35,8 @@ public class Compra implements Serializable, Comparable<Compra> {
     public List<Jogo> getJogos(){
         return this.jogos;
     }
-
-    public void incluirJogo(Jogo novoJogo, double pctDesconto) {
-        novoJogo.descontoValido(pctDesconto);
+    public void incluirJogo(Jogo novoJogo) {
         this.jogos.add(novoJogo);
-        atualizarDescontoCompra();
-    }
-
-    public void incluirJogo(Jogo itemAtual) {
-        this.jogos.add(itemAtual);
         atualizarDescontoCompra();
     }
 
