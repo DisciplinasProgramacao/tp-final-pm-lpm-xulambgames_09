@@ -5,12 +5,14 @@ import dao.JogoDAO;
 import entities.*;
 import enums.*;
 import factories.FabricaCategoriaJogos;
+import interfaces.ITipoCliente;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -167,11 +169,31 @@ public class XulambApplication {
                         System.out.println("Escreva o ano da Compra");
                         int ano = Integer.parseInt(teclado.nextLine());
                         clienteAtual.comprasPelaData(dia,mes,ano); 
-                    } 
+                    }
                     catch(DateTimeException e){ 
                         System.out.println("Data Inválida");
                     }
-                        break;
+                    break;
+                case 27:
+                    clienteAtual = localizarCliente();
+                    NotaFiscal notaFiscal = new NotaFiscal();
+                    notaFiscal.cliente = clienteAtual;
+                    System.out.println("Informe a data do pagamento (dd/mm/yyyy ou aperte Enter para hoje): ");
+                    String diaInformado = teclado.nextLine();
+                    if (!Objects.equals(diaInformado, "")) {
+                        notaFiscal.dataPagamento = LocalDate.parse(diaInformado, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                    } else {
+                        notaFiscal.dataPagamento = LocalDate.now();
+                    }
+                    notaFiscal.valorPago = clienteAtual.getTipoCliente().map(ITipoCliente::valorMensalidade).orElse(0);
+
+                    clienteAtual.incluirPagamento(notaFiscal);
+
+                    break;
+                case 28:
+                    clienteAtual = localizarCliente();
+                    clienteAtual.extrato();
+                    break;
                 case 31:
                     conjuntoJogos.add(criarNovoJogo());
                     break;

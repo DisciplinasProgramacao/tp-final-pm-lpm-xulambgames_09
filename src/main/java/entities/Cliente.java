@@ -20,6 +20,7 @@ public class Cliente implements Comparable<Cliente>, Serializable {
     private String email;
     private List<Compra> compras;
     private ITipoCliente tipoCliente;
+    private List<NotaFiscal> extrato;
 
     public static void setProximoCodigo(int cod){
         if(ultimoCodigo<=cod)
@@ -33,6 +34,7 @@ public class Cliente implements Comparable<Cliente>, Serializable {
         this.email = email;
         this.tipoCliente = tipoCliente;
         this.compras = new LinkedList<>();
+        this.extrato = new LinkedList<>();
     }
 
     public Cliente(String nome, String senha, String email) {
@@ -42,6 +44,11 @@ public class Cliente implements Comparable<Cliente>, Serializable {
         this.email = email;
         this.tipoCliente = null;
         this.compras = new LinkedList<>();
+        this.extrato = new LinkedList<>();
+    }
+
+    public Optional<List<NotaFiscal>> getExtrato() {
+        return Optional.ofNullable(this.extrato.isEmpty() ? null : this.extrato);
     }
 
     public int getId() {
@@ -80,6 +87,17 @@ public class Cliente implements Comparable<Cliente>, Serializable {
                 .forEach(i -> System.out.println(i));
     }
 
+    public void extrato() {
+        this.getExtrato().ifPresentOrElse(
+                e -> {
+                    for (NotaFiscal nf : e)
+                        System.out.println("============\n" + nf + "\n============");
+                },
+                () -> System.out.println(this.nome + " não possui nenhum pagamento.")
+        );
+
+    }
+
     @Override
     public String toString() {
         return "Nome: " + this.nome + " - Tipo: " + (this.tipoCliente != null ? this.tipoCliente.toString() : "Cadastrado") + " - e-mail: " + this.email;
@@ -90,17 +108,14 @@ public class Cliente implements Comparable<Cliente>, Serializable {
         return this.nome.compareTo(o.nome);
     }
 
-    public Double totalEmCompras() {
-        return this.compras.stream().mapToDouble(Compra::getValorPago).sum();
+    public void incluirPagamento(NotaFiscal notaFiscal) {
+        this.extrato.add(notaFiscal);
     }
 
-
     public void comprasPelaData(int dia, int mes, int ano){  
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        //LocalDate ld = LocalDate.parse(data, formatter); 
         LocalDate ld = LocalDate.of(ano, mes, dia);
         this.compras.stream()
         .filter(i -> i.getData().isEqual(ld))
-        .forEach(i -> System.out.println(i));
+        .forEach(System.out::println);
     }
 }
