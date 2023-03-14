@@ -108,6 +108,9 @@ public class Cliente implements Comparable<Cliente>, Serializable {
         return this.nome.compareTo(o.nome);
     }
 
+    public void setExtrato()
+        int valorAPagar = 0
+
     public void incluirPagamento(NotaFiscal notaFiscal) {
         this.extrato.add(notaFiscal);
     }
